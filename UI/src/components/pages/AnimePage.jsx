@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import AnimeHeader from '../organisms/AnimeHeader';
 import SearchBar from '../molecules/SearchBar';
 import FilterBar from '../molecules/FilterBar';
-import AnimeCard from '../atoms/AnimeCard';
+import AnimeGrid from '../organisms/AnimeGrid';
 import AnimeDetail from '../organisms/AnimeDetail';
 
 const AnimePage = () => {
@@ -115,56 +115,54 @@ const AnimePage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
         <AnimeHeader />
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8">
           <SearchBar onSearch={handleSearch} />
         </div>
         <FilterBar onFilterChange={handleFilterChange} />
 
         {error && (
-          <div className="mb-8 rounded-lg bg-red-100 p-4 text-red-700 dark:bg-red-900 dark:text-red-100">
+          <div className="mb-6 sm:mb-8 rounded-lg bg-red-100 p-3 sm:p-4 text-red-700 dark:bg-red-900 dark:text-red-100 text-sm sm:text-base">
             {error}
           </div>
         )}
 
-        {loading ? (
-          <div className="flex min-h-[400px] items-center justify-center">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent"></div>
-          </div>
-        ) : (
-          <>
-            <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-              {animes.map((anime) => (
-                <AnimeCard
-                  key={anime.mal_id}
-                  anime={anime}
-                  onViewDetails={handleViewDetails}
-                />
-              ))}
-            </div>
+        <AnimeGrid 
+          animes={animes}
+          loading={loading}
+          onViewDetails={handleViewDetails}
+        />
 
-            {/* Paginación */}
-            <div className="mt-8 flex justify-center gap-2">
-              <button
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="rounded-lg bg-white px-4 py-2 text-gray-700 shadow-md transition-all hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-              >
-                Anterior
-              </button>
-              <span className="flex items-center rounded-lg bg-white px-4 py-2 text-gray-700 shadow-md dark:bg-gray-800 dark:text-gray-300">
-                Página {currentPage}
-              </span>
-              <button
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={!hasNextPage}
-                className="rounded-lg bg-white px-4 py-2 text-gray-700 shadow-md transition-all hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-              >
-                Siguiente
-              </button>
-            </div>
-          </>
+        {!loading && animes.length > 0 && (
+          /* Paginación Responsive */
+          <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="w-full sm:w-auto rounded-lg bg-white px-4 py-2 text-sm sm:text-base text-gray-700 shadow-md transition-all hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 min-h-[44px] flex items-center justify-center"
+            >
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              Anterior
+            </button>
+            
+            <span className="flex items-center rounded-lg bg-emerald-500 px-4 py-2 text-sm sm:text-base text-white shadow-md font-medium min-h-[44px]">
+              Página {currentPage}
+            </span>
+            
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={!hasNextPage}
+              className="w-full sm:w-auto rounded-lg bg-white px-4 py-2 text-sm sm:text-base text-gray-700 shadow-md transition-all hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 min-h-[44px] flex items-center justify-center"
+            >
+              Siguiente
+              <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
         )}
 
         {selectedAnime && (
