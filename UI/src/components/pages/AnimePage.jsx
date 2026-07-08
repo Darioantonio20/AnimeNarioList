@@ -196,12 +196,17 @@ const AnimePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-500">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-4 sm:py-6 lg:py-8">
         <AnimeHeader />
-        <div className="mb-6 sm:mb-8">
-          <SearchBar onSearch={handleSearch} value={searchQuery} />
+        
+        {/* Hero Section */}
+        <div className="relative z-10 flex flex-col items-center justify-center mt-4 sm:mt-8 mb-8 sm:mb-12 animate-fade-in">
+          <div className="w-full max-w-4xl px-4">
+            <SearchBar onSearch={handleSearch} value={searchQuery} />
+          </div>
         </div>
+
         <FilterBar onFilterChange={handleFilterChange} />
 
         {error && (

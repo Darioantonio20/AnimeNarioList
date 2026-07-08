@@ -4,7 +4,7 @@ import AnimeCard from '../atoms/AnimeCard';
 const AnimeGrid = ({ animes, loading, onViewDetails }) => {
     if (loading) {
     return (
-      <div className="grid gap-3 sm:gap-4 md:gap-5 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
+      <div className="grid gap-4 sm:gap-6 md:gap-8 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
         {[...Array(12)].map((_, index) => (
           <div
             key={index}
@@ -62,7 +62,7 @@ const AnimeGrid = ({ animes, loading, onViewDetails }) => {
   }
 
   return (
-    <div className="grid gap-3 sm:gap-4 md:gap-5 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
+    <div className="grid gap-4 sm:gap-6 md:gap-8 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
       {animes.map((anime, index) => (
         <AnimeCard 
           key={anime.mal_id} 

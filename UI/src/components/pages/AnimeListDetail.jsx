@@ -62,26 +62,34 @@ const AnimeListDetail = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
-        <div className="mb-6 sm:mb-8">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div className="flex-1">
-              <h1 className="bg-gradient-to-r from-emerald-500 to-emerald-600 bg-clip-text text-xl sm:text-2xl lg:text-4xl font-bold text-transparent break-words">
-                {list.name}
-              </h1>
-              <p className="mt-2 text-sm sm:text-base text-gray-600 dark:text-gray-400">
-                Creada el {new Date(list.createdAt).toLocaleDateString()}
-              </p>
+        <div className="mb-6 sm:mb-8 rounded-2xl glass-panel p-4 sm:p-5 shadow-lg relative z-10 animate-fade-in">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => navigate('/my-lists')}
+                className="group flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 hover:bg-emerald-50 dark:bg-gray-800 dark:hover:bg-emerald-900/30 transition-all duration-300 ring-1 ring-gray-200 dark:ring-gray-700 hover:ring-emerald-200 dark:hover:ring-emerald-800 shrink-0"
+                title="Volver a Mis Listas"
+              >
+                <svg className="h-5 w-5 text-gray-500 group-hover:text-emerald-600 dark:text-gray-400 dark:group-hover:text-emerald-400 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              
+              <div className="flex-1">
+                <h1 className="bg-gradient-to-r from-emerald-400 to-teal-600 bg-clip-text text-2xl sm:text-3xl lg:text-4xl font-black text-transparent break-words tracking-tight">
+                  {list.name}
+                </h1>
+                <p className="mt-1 text-xs sm:text-sm text-gray-500 dark:text-gray-400 font-medium">
+                  Creada el {new Date(list.createdAt).toLocaleDateString()}
+                </p>
+              </div>
             </div>
-            <button
-              onClick={() => navigate('/my-lists')}
-              className="rounded-full bg-emerald-500 px-4 py-2 sm:px-6 sm:py-2 text-sm sm:text-base text-white shadow-lg shadow-emerald-500/20 transition-all hover:bg-emerald-600 hover:scale-105 min-h-[44px] flex items-center justify-center gap-2 w-fit"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-              <span className="hidden sm:inline">Volver a Mis Listas</span>
-              <span className="sm:hidden">Volver</span>
-            </button>
+            
+            <div className="flex items-center">
+              <span className="rounded-full bg-emerald-500/10 dark:bg-emerald-500/20 px-4 py-1.5 text-xs sm:text-sm font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shadow-sm w-fit">
+                {list.animes.length} anime{list.animes.length !== 1 ? 's' : ''} en total
+              </span>
+            </div>
           </div>
         </div>
 

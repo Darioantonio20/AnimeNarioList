@@ -8,22 +8,22 @@ const FilterBar = ({ onFilterChange }) => {
   });
 
   const types = [
-    { value: 'tv', label: '📺 Series' },
-    { value: 'movie', label: '🎬 Películas' },
-    { value: 'ova', label: '💿 OVAs' }
+    { value: 'tv', label: 'Series' },
+    { value: 'movie', label: 'Películas' },
+    { value: 'ova', label: 'OVAs' }
   ];
 
   // IDs de Jikan v4 reales
   const genres = [
-    { value: '1', label: '⚔️ Acción' },
-    { value: '2', label: '🗺️ Aventura' },
-    { value: '4', label: '😂 Comedia' },
-    { value: '8', label: '🎭 Drama' },
-    { value: '10', label: '🧙 Fantasía' },
-    { value: '22', label: '💕 Romance' },
-    { value: '24', label: '🚀 Sci-Fi' },
-    { value: '9', label: '🔞 Ecchi', nsfw: true },
-    { value: '12', label: '🔞 Hentai', nsfw: true }
+    { value: '1', label: 'Acción' },
+    { value: '2', label: 'Aventura' },
+    { value: '4', label: 'Comedia' },
+    { value: '8', label: 'Drama' },
+    { value: '10', label: 'Fantasía' },
+    { value: '22', label: 'Romance' },
+    { value: '24', label: 'Sci-Fi' },
+    { value: '9', label: 'Ecchi', nsfw: true },
+    { value: '12', label: 'Hentai', nsfw: true }
   ];
 
   const handleTypeSelect = (typeVal) => {
@@ -49,25 +49,26 @@ const FilterBar = ({ onFilterChange }) => {
   const hasActiveFilters = activeFilters.type !== '' || activeFilters.genres !== '';
 
   return (
-    <div className="mb-6 rounded-2xl bg-white/60 dark:bg-gray-800/50 border border-gray-200/60 dark:border-gray-700/50 p-4 sm:p-5 shadow-lg backdrop-blur-md transition-all duration-300">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+    <div className="mb-6 rounded-2xl glass-panel p-4 sm:p-5 shadow-lg animate-fade-in transition-all duration-300 relative z-10">
+      <div className="flex flex-col gap-4 items-center justify-center">
         
-        {/* Filtros */}
-        <div className="flex flex-wrap items-center gap-4 sm:gap-5">
+        {/* Filtros Container */}
+        <div className="flex flex-col gap-4 w-full items-center">
+          
           {/* Tipos */}
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col items-center gap-2 w-full">
             <span className="text-[10px] font-extrabold uppercase tracking-widest text-gray-400 dark:text-gray-500">Tipo</span>
-            <div className="flex gap-1.5">
+            <div className="flex flex-wrap justify-center gap-2 w-full">
               {types.map((type) => {
                 const isActive = activeFilters.type === type.value;
                 return (
                   <button
                     key={type.value}
                     onClick={() => handleTypeSelect(type.value)}
-                    className={`rounded-full px-3 py-1.5 text-xs sm:text-sm font-bold transition-all duration-200 active:scale-95 ${
+                    className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold transition-all duration-300 active:scale-95 ${
                       isActive 
-                        ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/25' 
-                        : 'bg-gray-100 hover:bg-gray-200 text-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300'
+                        ? 'bg-gradient-to-r from-emerald-400 to-emerald-600 text-white shadow-lg shadow-emerald-500/30 ring-2 ring-emerald-500/50' 
+                        : 'bg-white/50 hover:bg-white text-gray-600 dark:bg-gray-800/50 dark:hover:bg-gray-700 dark:text-gray-300 ring-1 ring-gray-200/50 dark:ring-gray-700/50 hover:shadow-md'
                     }`}
                   >
                     {type.label}
@@ -77,27 +78,27 @@ const FilterBar = ({ onFilterChange }) => {
             </div>
           </div>
 
-          {/* Separador */}
-          <div className="hidden lg:block h-5 w-px bg-gray-200 dark:bg-gray-700" />
+          {/* Separador (Solo visible si deciden ponerlo en horizontal luego, pero por ahora lo oculto en este diseño centrado vertical/wrap) */}
+          <div className="hidden w-full h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-600 to-transparent my-1" />
 
           {/* Géneros */}
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col items-center gap-2 w-full">
             <span className="text-[10px] font-extrabold uppercase tracking-widest text-gray-400 dark:text-gray-500">Género</span>
-            <div className="flex flex-wrap gap-1.5">
+            <div className="flex flex-wrap justify-center gap-2 w-full">
               {genres.map((genre) => {
                 const isActive = activeFilters.genres === genre.value;
                 return (
                   <button
                     key={genre.value}
                     onClick={() => handleGenreSelect(genre.value)}
-                    className={`rounded-full px-3 py-1.5 text-xs sm:text-sm font-bold transition-all duration-200 active:scale-95 ${
+                    className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold transition-all duration-300 active:scale-95 ${
                       isActive 
                         ? genre.nsfw
-                          ? 'bg-red-500 text-white shadow-md shadow-red-500/30'
-                          : 'bg-emerald-500 text-white shadow-md shadow-emerald-500/25'
+                          ? 'bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-lg shadow-red-500/30 ring-2 ring-red-500/50'
+                          : 'bg-gradient-to-r from-emerald-400 to-emerald-600 text-white shadow-lg shadow-emerald-500/30 ring-2 ring-emerald-500/50'
                         : genre.nsfw
-                          ? 'bg-red-50 hover:bg-red-100 text-red-500 dark:bg-red-900/20 dark:hover:bg-red-900/40 dark:text-red-400'
-                          : 'bg-gray-100 hover:bg-gray-200 text-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300'
+                          ? 'bg-red-50 hover:bg-red-100 text-red-500 dark:bg-red-900/10 dark:hover:bg-red-900/30 dark:text-red-400 ring-1 ring-red-200/50 dark:ring-red-900/50 hover:shadow-md'
+                          : 'bg-white/50 hover:bg-white text-gray-600 dark:bg-gray-800/50 dark:hover:bg-gray-700 dark:text-gray-300 ring-1 ring-gray-200/50 dark:ring-gray-700/50 hover:shadow-md'
                     }`}
                   >
                     {genre.label}
@@ -109,14 +110,15 @@ const FilterBar = ({ onFilterChange }) => {
         </div>
 
         {/* Limpiar */}
-        {hasActiveFilters && (
+        <div className={`transition-all duration-300 mt-2 ${hasActiveFilters ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform translate-y-2 pointer-events-none'}`}>
           <button
             onClick={clearFilters}
-            className="rounded-full bg-gray-100 hover:bg-red-500 hover:text-white px-4 py-1.5 text-xs font-bold text-gray-500 dark:bg-gray-700 dark:hover:bg-red-600 dark:text-gray-400 dark:hover:text-white transition-all duration-200 active:scale-95 self-start lg:self-auto"
+            className="flex items-center justify-center gap-1.5 rounded-full bg-gray-100 hover:bg-red-50 hover:text-red-600 px-6 py-2 text-xs font-bold text-gray-500 dark:bg-gray-800 dark:hover:bg-red-900/30 dark:text-gray-400 dark:hover:text-red-400 ring-1 ring-gray-200 dark:ring-gray-700 transition-all duration-300 active:scale-95 shadow-sm"
           >
-            ✕ Limpiar
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>
+            Limpiar Filtros
           </button>
-        )}
+        </div>
       </div>
     </div>
   );

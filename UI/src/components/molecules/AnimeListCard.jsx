@@ -5,61 +5,61 @@ const AnimeListCard = ({ list, onDelete, onExportExcel, onExportTxt, index = 0 }
   const navigate = useNavigate();
 
   return (
-    <div className="group relative overflow-hidden rounded-xl bg-white p-4 sm:p-6 shadow-lg transition-all duration-500 ease-out hover:shadow-2xl hover:-translate-y-2 hover:scale-105 dark:bg-gray-800 cursor-pointer transform-gpu"
+    <div className="group relative overflow-hidden rounded-2xl glass-panel p-5 sm:p-6 shadow-lg transition-all duration-500 ease-out hover:shadow-[0_20px_40px_-15px_rgba(16,185,129,0.3)] transform-style-3d hover:-translate-y-2 hover:rotate-x-2 hover:rotate-y-[-2deg] cursor-pointer transform-gpu border border-white/20 dark:border-gray-700/50"
          style={{
            animationDelay: `${index * 100}ms`,
          }}
     >
-      <div className="mb-3 sm:mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white line-clamp-2">
+      <div className="mb-4 sm:mb-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between relative z-10">
+        <h3 className="text-xl sm:text-2xl font-black text-gray-800 dark:text-white line-clamp-2 tracking-tight">
           {list.name}
         </h3>
-        <span className="rounded-full bg-emerald-100 px-2 py-1 sm:px-3 sm:py-1 text-xs sm:text-sm text-emerald-800 dark:bg-emerald-900 dark:text-emerald-100 w-fit">
+        <span className="rounded-full bg-emerald-500/10 dark:bg-emerald-500/20 px-3 py-1 text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shadow-sm w-fit">
           {list.animes.length} anime{list.animes.length !== 1 ? 's' : ''}
         </span>
       </div>
 
-      <div className="mb-3 sm:mb-4">
-        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+      <div className="mb-4 relative z-10">
+        <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
           Creada el {new Date(list.createdAt).toLocaleDateString()}
         </p>
       </div>
 
-      <div className="flex flex-wrap gap-1 sm:gap-2">
-        {list.animes.slice(0, 2).map((anime) => (
+      <div className="flex flex-wrap gap-2 relative z-10">
+        {list.animes.slice(0, 3).map((anime) => (
           <div
             key={anime.mal_id}
-            className="flex items-center gap-1 sm:gap-2 rounded-full bg-gray-100 px-2 py-1 sm:px-3 sm:py-1 text-xs sm:text-sm text-gray-700 dark:bg-gray-700 dark:text-gray-300 max-w-[140px] sm:max-w-none"
+            className="flex items-center gap-1.5 rounded-full bg-white/60 dark:bg-gray-800/60 backdrop-blur-md px-2 py-1 text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-200/50 dark:border-gray-700/50 shadow-sm transition-all hover:bg-white dark:hover:bg-gray-700"
           >
             <img
               src={anime.images?.jpg?.small_image_url}
               alt={anime.title}
-              className="h-4 w-4 sm:h-6 sm:w-6 rounded-full object-cover flex-shrink-0"
+              className="h-5 w-5 rounded-full object-cover shadow-sm"
             />
-            <span className="truncate text-xs sm:text-sm">{anime.title}</span>
+            <span className="truncate max-w-[100px]">{anime.title}</span>
           </div>
         ))}
-        {list.animes.length > 2 && (
-          <span className="rounded-full bg-gray-100 px-2 py-1 sm:px-3 sm:py-1 text-xs sm:text-sm text-gray-700 dark:bg-gray-700 dark:text-gray-300">
-            +{list.animes.length - 2} más
+        {list.animes.length > 3 && (
+          <span className="flex items-center rounded-full bg-gray-100/80 dark:bg-gray-800/80 backdrop-blur-md px-3 py-1 text-xs font-bold text-gray-500 dark:text-gray-400 border border-gray-200/50 dark:border-gray-700/50">
+            +{list.animes.length - 3} más
           </span>
         )}
       </div>
 
-      {/* Efecto de brillo en hover */}
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-200/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
+      {/* Efecto de brillo diagonal en hover */}
+      <div className="absolute inset-0 z-0 bg-gradient-to-tr from-transparent via-white/40 dark:via-white/5 to-transparent opacity-0 group-hover:opacity-100 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] pointer-events-none" />
 
-      <div className="mt-4 sm:mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between relative z-10">
+      <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between relative z-10 pt-4 border-t border-gray-100 dark:border-gray-800/50">
         <button
           onClick={() => navigate(`/lists/${list.id}`)}
-          className="group/btn relative overflow-hidden rounded-full bg-emerald-500 px-4 py-2 sm:px-6 sm:py-2 text-xs sm:text-sm font-medium text-white transition-all duration-300 hover:bg-emerald-600 hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 active:scale-95 min-h-[40px] flex items-center justify-center"
+          className="group/btn relative overflow-hidden rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-emerald-500/30 active:scale-95 flex items-center justify-center gap-2"
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-emerald-600 opacity-0 transition-opacity duration-300 group-hover/btn:opacity-100" />
-          <span className="relative z-10 flex items-center gap-1 sm:gap-2">
-            <span className="hidden sm:inline">Ver Lista</span>
-            <span className="sm:hidden">Ver</span>
-            <svg className="w-3 h-3 sm:w-4 sm:h-4 transition-transform duration-300 group-hover/btn:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          <div className="absolute inset-0 bg-white/20 opacity-0 transition-opacity duration-300 group-hover/btn:opacity-100" />
+          <span className="relative z-10 flex items-center gap-2">
+            <span>Ver Colección</span>
+            <svg className="w-4 h-4 transition-transform duration-300 group-hover/btn:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
             </svg>
           </span>
         </button>
