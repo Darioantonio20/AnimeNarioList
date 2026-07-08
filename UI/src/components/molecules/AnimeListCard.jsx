@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const AnimeListCard = ({ list, onDelete, onExport, index = 0 }) => {
+const AnimeListCard = ({ list, onDelete, onExportExcel, onExportTxt, index = 0 }) => {
   const navigate = useNavigate();
 
   return (
@@ -65,10 +65,11 @@ const AnimeListCard = ({ list, onDelete, onExport, index = 0 }) => {
         </button>
         
         <div className="flex gap-2 justify-center sm:justify-end">
+          {/* Exportar a Excel */}
           <button
-            onClick={onExport}
+            onClick={onExportExcel}
             className="group/btn relative overflow-hidden rounded-full bg-gray-100 p-2 sm:p-3 text-gray-600 transition-all duration-300 hover:bg-emerald-100 hover:text-emerald-600 hover:scale-110 hover:shadow-lg dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-emerald-800 dark:hover:text-emerald-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 active:scale-95 min-h-[40px] min-w-[40px] flex items-center justify-center"
-            title="Exportar a Excel"
+            title="Exportar a Excel (.xlsx)"
           >
             <svg
               className="h-4 w-4 sm:h-5 sm:w-5 transition-transform duration-300 group-hover/btn:rotate-12"
@@ -81,6 +82,27 @@ const AnimeListCard = ({ list, onDelete, onExport, index = 0 }) => {
                 strokeLinejoin="round"
                 strokeWidth={2}
                 d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
+            </svg>
+          </button>
+
+          {/* Exportar a TXT */}
+          <button
+            onClick={onExportTxt}
+            className="group/btn relative overflow-hidden rounded-full bg-gray-100 p-2 sm:p-3 text-gray-600 transition-all duration-300 hover:bg-blue-100 hover:text-blue-600 hover:scale-110 hover:shadow-lg dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-blue-800 dark:hover:text-blue-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 active:scale-95 min-h-[40px] min-w-[40px] flex items-center justify-center"
+            title="Exportar a Texto (.txt)"
+          >
+            <svg
+              className="h-4 w-4 sm:h-5 sm:w-5 transition-transform duration-300 group-hover/btn:rotate-12"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
               />
             </svg>
           </button>

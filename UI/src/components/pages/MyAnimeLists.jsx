@@ -2,11 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AnimeListCard from '../molecules/AnimeListCard';
 import CreateListModal from '../organisms/CreateListModal';
+import ImportListModal from '../organisms/ImportListModal';
 import { exportToExcel } from '../../utils/excelExport';
+import { exportToTxt } from '../../utils/txtExport';
 
 const MyAnimeLists = () => {
   const [lists, setLists] = useState([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -27,13 +30,18 @@ const MyAnimeLists = () => {
     setShowCreateModal(false);
   };
 
+  const handleImportCompleted = (newList) => {
+    setLists(prev => [...prev, newList]);
+    navigate(`/lists/${newList.id}`);
+  };
+
   const handleDeleteList = (listId) => {
     const updatedLists = lists.filter(list => list.id !== listId);
     setLists(updatedLists);
     localStorage.setItem('animeLists', JSON.stringify(updatedLists));
   };
 
-  const handleExportList = (list) => {
+  const handleExportExcel = (list) => {
     const data = list.animes.map((anime, index) => ({
       'Posición': index + 1,
       'Título': anime.title,
@@ -46,6 +54,10 @@ const MyAnimeLists = () => {
       'Géneros': anime.genres?.map(g => g.name).join(', ')
     }));
     exportToExcel(data, `${list.name}_anime_list`);
+  };
+
+  const handleExportTxt = (list) => {
+    exportToTxt(list.animes, `${list.name}_anime_list`);
   };
 
   return (
@@ -84,17 +96,33 @@ const MyAnimeLists = () => {
               <span className="sm:hidden">Mis Listas</span>
             </h1>
 
-            {/* Botón Crear - Mobile Optimized */}
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="rounded-full bg-emerald-500 px-4 py-2 sm:px-6 sm:py-2 text-sm sm:text-base text-white shadow-lg shadow-emerald-500/20 transition-all hover:bg-emerald-600 hover:scale-105 min-h-[44px] flex items-center justify-center"
-            >
-              <svg className="w-4 h-4 sm:hidden mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              <span className="hidden sm:inline">Crear Nueva Lista</span>
-              <span className="sm:hidden">Nueva Lista</span>
-            </button>
+            {/* Botones de Acción - Mobile Optimized */}
+            <div className="flex gap-3 w-full sm:w-auto justify-center sm:justify-start">
+              
+              {/* Botón Importar */}
+              <button
+                onClick={() => setShowImportModal(true)}
+                className="rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 px-4 py-2 text-sm sm:text-base text-gray-700 dark:text-gray-300 shadow-md transition-all hover:scale-105 min-h-[44px] flex items-center justify-center"
+              >
+                <svg className="w-4 h-4 mr-2 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                </svg>
+                <span>Importar</span>
+              </button>
+
+              {/* Botón Crear */}
+              <button
+                onClick={() => setShowCreateModal(true)}
+                className="rounded-full bg-emerald-500 px-4 py-2 sm:px-6 sm:py-2 text-sm sm:text-base text-white shadow-lg shadow-emerald-500/20 transition-all hover:bg-emerald-600 hover:scale-105 min-h-[44px] flex items-center justify-center"
+              >
+                <svg className="w-4 h-4 sm:hidden mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                <span className="hidden sm:inline">Crear Nueva Lista</span>
+                <span className="sm:hidden">Nueva Lista</span>
+              </button>
+
+            </div>
           </div>
         </div>
 
@@ -107,20 +135,33 @@ const MyAnimeLists = () => {
               <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 mb-2">
                 No tienes ninguna lista de anime creada
               </p>
-              <p className="text-sm text-gray-500 dark:text-gray-500">
-                Crea tu primera lista para organizar tus animes favoritos
+              <p className="text-sm text-gray-500 dark:text-gray-500 font-normal">
+                Crea una lista o importa una desde tus archivos locales (.txt o .xlsx)
               </p>
             </div>
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="rounded-full bg-emerald-500 px-6 py-3 sm:px-8 sm:py-3 text-sm sm:text-base text-white shadow-lg shadow-emerald-500/20 transition-all hover:bg-emerald-600 hover:scale-105 min-h-[44px] flex items-center gap-2"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              <span className="hidden sm:inline">Crear Mi Primera Lista</span>
-              <span className="sm:hidden">Crear Lista</span>
-            </button>
+
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                onClick={() => setShowImportModal(true)}
+                className="rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 px-6 py-3 text-sm sm:text-base text-gray-700 dark:text-gray-300 shadow-md transition-all hover:scale-105 min-h-[44px] flex items-center gap-2 justify-center"
+              >
+                <svg className="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                </svg>
+                <span>Importar Lista</span>
+              </button>
+
+              <button
+                onClick={() => setShowCreateModal(true)}
+                className="rounded-full bg-emerald-500 px-6 py-3 sm:px-8 sm:py-3 text-sm sm:text-base text-white shadow-lg shadow-emerald-500/20 transition-all hover:bg-emerald-600 hover:scale-105 min-h-[44px] flex items-center gap-2 justify-center"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                <span>Crear Nueva Lista</span>
+              </button>
+            </div>
+
           </div>
         ) : (
           <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
@@ -130,7 +171,8 @@ const MyAnimeLists = () => {
                 list={list}
                 index={index}
                 onDelete={() => handleDeleteList(list.id)}
-                onExport={() => handleExportList(list)}
+                onExportExcel={() => handleExportExcel(list)}
+                onExportTxt={() => handleExportTxt(list)}
               />
             ))}
           </div>
@@ -140,6 +182,13 @@ const MyAnimeLists = () => {
           <CreateListModal
             onClose={() => setShowCreateModal(false)}
             onCreate={handleCreateList}
+          />
+        )}
+
+        {showImportModal && (
+          <ImportListModal
+            onClose={() => setShowImportModal(false)}
+            onImportCompleted={handleImportCompleted}
           />
         )}
       </div>
