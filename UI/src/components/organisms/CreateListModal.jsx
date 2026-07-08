@@ -12,7 +12,7 @@ const CreateListModal = ({ onClose, onCreate }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-800">
+      <div className="w-full max-w-md mx-4 rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-800">
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
             Crear Nueva Lista

@@ -7,10 +7,11 @@ const AnimeCard = ({ anime, onViewDetails, index = 0 }) => {
   const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
-    // Escalonar la entrada de las tarjetas para un efecto en cascada
+    // Escalonar la entrada de las tarjetas limitando el retraso máximo para mejor rendimiento
+    const delay = Math.min(index * 15, 300);
     const timer = setTimeout(() => {
       setIsLoaded(true);
-    }, index * 50);
+    }, delay);
     return () => clearTimeout(timer);
   }, [index]);
 
@@ -154,4 +155,4 @@ const AnimeCard = ({ anime, onViewDetails, index = 0 }) => {
   );
 };
 
-export default AnimeCard; 
+export default React.memo(AnimeCard); 

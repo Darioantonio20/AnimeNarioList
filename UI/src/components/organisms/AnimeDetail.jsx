@@ -62,10 +62,10 @@ const AnimeDetail = ({ anime, onClose }) => {
              }}
         >
 
-          <div className="p-8 pt-12">
+          <div className="p-4 pt-16 sm:p-8">
             <div className="grid gap-8 lg:grid-cols-[350px,1fr]">
               {/* Imagen y badges mejorados */}
-              <div className="space-y-6">
+              <div className="space-y-6 max-w-sm mx-auto lg:max-w-none">
                 <div className="group relative overflow-hidden rounded-2xl shadow-2xl">
                   <img
                     src={anime.images?.jpg?.large_image_url}

@@ -8,7 +8,7 @@ import AnimeDetail from '../organisms/AnimeDetail';
 // ──────────────────────────────────────────────
 // AniList GraphQL — API principal (rápida, estable, tiene hentai)
 // ──────────────────────────────────────────────
-const ANILIST_URL = 'https://graphql.anilist.co';
+const ANILIST_URL = 'https://graphql.anilist.co/';
 
 const buildAniListQuery = ({ page, limit, search, type, genreTag }) => {
   const vars = { page, perPage: limit };
@@ -97,6 +97,7 @@ const AnimePage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
   const [selectedAnime, setSelectedAnime] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [hasNextPage, setHasNextPage] = useState(false);
@@ -124,7 +125,7 @@ const AnimePage = () => {
       const { query, variables } = buildAniListQuery({
         page: currentPage,
         limit: 20,
-        search: searchQuery.trim() || null,
+        search: debouncedSearchQuery.trim() || null,
         type: filters.type || null,
         genreTag: genreName || null
       });
@@ -163,13 +164,18 @@ const AnimePage = () => {
     }
   };
 
-  // Efecto unificado
+  // 1. Debounce del buscador de texto plano
   useEffect(() => {
     const timer = setTimeout(() => {
-      fetchAnimes();
-    }, 400);
+      setDebouncedSearchQuery(searchQuery);
+    }, 300);
     return () => clearTimeout(timer);
-  }, [searchQuery, filters, currentPage]);
+  }, [searchQuery]);
+
+  // 2. Ejecutar búsqueda inmediatamente ante cambios de filtros, páginas o el valor debounced del buscador
+  useEffect(() => {
+    fetchAnimes();
+  }, [debouncedSearchQuery, filters, currentPage]);
 
   const handleSearch = (query) => {
     setSearchQuery(query);
@@ -196,7 +202,7 @@ const AnimePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-500">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-500 w-full overflow-x-hidden">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-4 sm:py-6 lg:py-8">
         <AnimeHeader />
         

@@ -181,7 +181,7 @@ const searchAniList = async (searchText) => {
       }
     }
   `;
-  const res = await fetch('https://graphql.anilist.co', {
+  const res = await fetch('https://graphql.anilist.co/', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
     body: JSON.stringify({ query, variables: { search: searchText } })
@@ -307,6 +307,13 @@ const ImportListModal = ({ onClose, onImportCompleted }) => {
   const [manualSearchResults, setManualSearchResults] = useState([]);
   const [manualSearchLoading, setManualSearchLoading] = useState(false);
 
+  // Estados para filtros, zoom de imagen y drag-and-drop
+  const [statusFilter, setStatusFilter] = useState('all'); // all, success, suggested, not_found, duplicated
+  const [previewImage, setPreviewImage] = useState(null); // { url, title }
+  const [draggedIdx, setDraggedIdx] = useState(null);
+  const [draggedOverIdx, setDraggedOverIdx] = useState(null);
+  const [tableSearchQuery, setTableSearchQuery] = useState('');
+
   // Helper para verificar si un anime es duplicado de uno anterior en la cola
   const isDuplicateOfPrevious = (item, index) => {
     if (!item.matchedAnime) return false;
@@ -318,6 +325,75 @@ const ImportListModal = ({ onClose, onImportCompleted }) => {
       }
     }
     return false;
+  };
+
+  // Helper para verificar si un elemento coincide con el filtro activo
+  const matchesFilter = (item, index) => {
+    if (item.status === 'ignored') return false;
+
+    // Filtro por búsqueda de texto
+    if (tableSearchQuery.trim()) {
+      const q = tableSearchQuery.toLowerCase().trim();
+      const matchOrig = item.originalTitle.toLowerCase().includes(q);
+      const matchFound = item.matchedAnime && (
+        item.matchedAnime.title.toLowerCase().includes(q) ||
+        (item.matchedAnime.title_english && item.matchedAnime.title_english.toLowerCase().includes(q)) ||
+        (item.matchedAnime.title_japanese && item.matchedAnime.title_japanese.toLowerCase().includes(q))
+      );
+      if (!matchOrig && !matchFound) return false;
+    }
+
+    if (statusFilter === 'all') return true;
+
+    const isDup = isDuplicateOfPrevious(item, index);
+    if (statusFilter === 'duplicated') {
+      return isDup && (item.status === 'success' || item.status === 'suggested');
+    }
+
+    // Si es duplicado, lo excluimos de otros filtros para no mezclar
+    if (isDup) return false;
+
+    if (statusFilter === 'success') return item.status === 'success';
+    if (statusFilter === 'suggested') return item.status === 'suggested';
+    if (statusFilter === 'not_found') return item.status === 'not_found';
+    return false;
+  };
+
+  // Manejadores de eventos para Drag & Drop
+  const handleDragStartRow = (e, index) => {
+    if (isValidating) return;
+    setDraggedIdx(index);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', e.currentTarget);
+  };
+
+  const handleDragOverRow = (e) => {
+    e.preventDefault();
+  };
+
+  const handleDragEnterRow = (index) => {
+    if (isValidating) return;
+    setDraggedOverIdx(index);
+  };
+
+  const handleDragEndRow = () => {
+    setDraggedIdx(null);
+    setDraggedOverIdx(null);
+  };
+
+  const handleDropRow = (e, targetIndex) => {
+    e.preventDefault();
+    if (isValidating || draggedIdx === null || draggedIdx === targetIndex) return;
+
+    setItemsToValidate(prev => {
+      const next = [...prev];
+      const [movedItem] = next.splice(draggedIdx, 1);
+      next.splice(targetIndex, 0, movedItem);
+      return next;
+    });
+
+    setDraggedIdx(null);
+    setDraggedOverIdx(null);
   };
 
   const fileInputRef = useRef(null);
@@ -755,7 +831,7 @@ const ImportListModal = ({ onClose, onImportCompleted }) => {
         <div className="p-5 sm:p-6 border-b border-gray-150 dark:border-gray-700 flex items-center justify-between bg-gradient-to-r from-emerald-50/40 to-emerald-100/10 dark:from-emerald-950/20 dark:to-gray-800/10">
           <div>
             <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2.5">
-              <span className="p-2 rounded-xl bg-emerald-500/10 text-emerald-500">
+              <span className="hidden sm:inline-block p-2 rounded-xl bg-emerald-500/10 text-emerald-500">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                 </svg>
@@ -860,7 +936,7 @@ const ImportListModal = ({ onClose, onImportCompleted }) => {
             <div className="flex flex-col gap-6 animate-scale-up">
               
               {/* Ajustes de Nombre de la Lista */}
-              <div className="flex flex-col sm:flex-row gap-4 items-end bg-gray-50 dark:bg-gray-900/20 p-4 rounded-xl border border-gray-150 dark:border-gray-700/50 backdrop-blur-sm">
+              <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-end bg-gray-50 dark:bg-gray-900/20 p-4 rounded-xl border border-gray-150 dark:border-gray-700/50 backdrop-blur-sm">
                 <div className="flex-1 w-full">
                   <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
                     Nombre de la Lista a Crear
@@ -957,11 +1033,104 @@ const ImportListModal = ({ onClose, onImportCompleted }) => {
                 </div>
               </div>
 
+              {/* FILTROS DE ESTADO Y BUSCADOR DE TABLA */}
+              <div className="flex flex-col gap-3 mb-2 pb-2 border-b border-gray-150 dark:border-gray-700/50">
+                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 w-full">
+                  <span className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mr-1 sm:mr-2">Filtrar por:</span>
+                  <button
+                    type="button"
+                    onClick={() => setStatusFilter('all')}
+                    className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold transition-all border ${
+                      statusFilter === 'all'
+                        ? 'bg-emerald-500 text-white border-emerald-500 shadow-md shadow-emerald-500/20'
+                        : 'bg-white text-gray-700 border-gray-250 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-350 dark:border-gray-700 dark:hover:bg-gray-750'
+                    }`}
+                  >
+                    Todos ({countTotal})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setStatusFilter('success')}
+                    className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold transition-all border flex items-center gap-1.5 ${
+                      statusFilter === 'success'
+                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-md shadow-emerald-600/20'
+                        : 'bg-emerald-50 text-emerald-700 border-emerald-200/60 hover:bg-emerald-100 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900/40 dark:hover:bg-emerald-950/40'
+                    }`}
+                  >
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                    Coincidencias ({countSuccess})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setStatusFilter('suggested')}
+                    className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold transition-all border flex items-center gap-1.5 ${
+                      statusFilter === 'suggested'
+                        ? 'bg-amber-500 text-white border-amber-500 shadow-md shadow-amber-500/20'
+                        : 'bg-yellow-50 text-yellow-700 border-yellow-200/60 hover:bg-yellow-100 dark:bg-yellow-950/20 dark:text-yellow-400 dark:border-yellow-900/40 dark:hover:bg-yellow-950/40'
+                    }`}
+                  >
+                    <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                    Sugeridos ({countSuggested})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setStatusFilter('not_found')}
+                    className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold transition-all border flex items-center gap-1.5 ${
+                      statusFilter === 'not_found'
+                        ? 'bg-red-500 text-white border-red-500 shadow-md shadow-red-500/20'
+                        : 'bg-red-50 text-red-750 border-red-200/60 hover:bg-red-100 dark:bg-red-950/20 dark:text-red-400 dark:border-red-900/40 dark:hover:bg-red-950/40'
+                    }`}
+                  >
+                    <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
+                    No Encontrados ({countNotFound})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setStatusFilter('duplicated')}
+                    className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold transition-all border flex items-center gap-1.5 ${
+                      statusFilter === 'duplicated'
+                        ? 'bg-orange-500 text-white border-orange-500 shadow-md shadow-orange-500/20'
+                        : 'bg-orange-50 text-orange-700 border-orange-200/60 hover:bg-orange-100 dark:bg-orange-950/20 dark:text-orange-400 dark:border-orange-900/40 dark:hover:bg-orange-950/40'
+                    }`}
+                  >
+                    <span className="h-1.5 w-1.5 rounded-full bg-orange-500" />
+                    Repetidos ({itemsToValidate.filter((item, idx) => (item.status === 'success' || item.status === 'suggested') && item.matchedAnime && isDuplicateOfPrevious(item, idx)).length})
+                  </button>
+                </div>
+
+                {/* Input de Búsqueda */}
+                <div className="relative w-full">
+                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </span>
+                  <input
+                    type="text"
+                    value={tableSearchQuery}
+                    onChange={(e) => setTableSearchQuery(e.target.value)}
+                    className="w-full rounded-xl border border-gray-250 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 pl-9 pr-9 py-2 text-xs text-gray-900 dark:text-white focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500/20"
+                    placeholder="Filtrar por título original de la lista o nombre encontrado..."
+                  />
+                  {tableSearchQuery && (
+                    <button
+                      onClick={() => setTableSearchQuery('')}
+                      className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 dark:hover:text-white"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
+              </div>
+
               {/* LISTADO DE ANIMES CARGADOS */}
-              <div className="border border-gray-200 dark:border-gray-700 rounded-2xl overflow-hidden bg-white dark:bg-gray-800/40 shadow-sm max-h-[350px] overflow-y-auto custom-scrollbar">
-                <table className="w-full text-left border-collapse text-xs sm:text-sm">
+              <div className="border border-gray-200 dark:border-gray-700 rounded-2xl bg-white dark:bg-gray-800/40 shadow-sm max-h-[350px] overflow-auto custom-scrollbar">
+                <table className="w-full min-w-[750px] text-left border-collapse text-xs sm:text-sm">
                   <thead>
                     <tr className="bg-gray-50/80 dark:bg-gray-900/60 border-b border-gray-250 dark:border-gray-700 text-gray-600 dark:text-gray-400 font-bold sticky top-0 backdrop-blur-sm z-10">
+                      <th className="p-3.5 w-10 text-center"></th>
                       <th className="p-3.5 pl-4">Título Original</th>
                       <th className="p-3.5">Resultado Encontrado</th>
                       <th className="p-3.5">Confianza</th>
@@ -970,18 +1139,38 @@ const ImportListModal = ({ onClose, onImportCompleted }) => {
                   </thead>
                   <tbody>
                     {itemsToValidate.map((item, idx) => {
-                      if (item.status === 'ignored') return null;
+                      if (!matchesFilter(item, idx)) return null;
                       
                       const isCurrent = idx === currentIndex && isValidating;
+                      const isDraggedOver = draggedOverIdx === idx;
+                      const isDraggingThis = draggedIdx === idx;
 
                       return (
                         <tr 
                           key={item.id}
+                          draggable={!isValidating}
+                          onDragStart={(e) => handleDragStartRow(e, idx)}
+                          onDragOver={handleDragOverRow}
+                          onDragEnter={() => handleDragEnterRow(idx)}
+                          onDragEnd={handleDragEndRow}
+                          onDrop={(e) => handleDropRow(e, idx)}
                           className={`border-b border-gray-100 dark:border-gray-700/50 transition-all duration-300 animate-row ${
                             isCurrent ? 'bg-emerald-500/5 dark:bg-emerald-500/5 shadow-[inset_4px_0_0_0_#10b981]' : 'hover:bg-gray-50/50 dark:hover:bg-gray-700/20'
-                          }`}
+                          } ${isDraggedOver ? 'border-t-2 border-emerald-500 bg-emerald-500/5' : ''} ${isDraggingThis ? 'opacity-30' : ''}`}
                           style={{ animationDelay: `${(idx % 10) * 40}ms` }}
                         >
+                          {/* Botón de arrastre */}
+                          <td className="p-3.5 text-center">
+                            <div 
+                              className={`text-gray-400 dark:text-gray-600 transition-colors ${!isValidating ? 'cursor-grab hover:text-emerald-500 dark:hover:text-emerald-400 active:cursor-grabbing' : 'opacity-30 cursor-not-allowed'}`}
+                              title={!isValidating ? "Arrastra para reordenar" : "Validando..."}
+                            >
+                              <svg className="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
+                              </svg>
+                            </div>
+                          </td>
+
                           {/* Título en Archivo */}
                           <td className="p-3.5 pl-4 font-semibold text-gray-700 dark:text-gray-300 break-words max-w-[200px]">
                             {item.originalTitle}
@@ -1003,7 +1192,11 @@ const ImportListModal = ({ onClose, onImportCompleted }) => {
                                 <img
                                   src={item.matchedAnime.images?.jpg?.small_image_url || item.matchedAnime.images?.jpg?.image_url}
                                   alt={item.matchedAnime.title}
-                                  className="h-12 w-9 object-cover rounded shadow-md shrink-0 hover:scale-105 transition-transform"
+                                  className="h-12 w-9 object-cover rounded shadow-md shrink-0 hover:scale-110 transition-transform cursor-zoom-in"
+                                  onClick={() => setPreviewImage({
+                                    url: item.matchedAnime.images?.jpg?.large_image_url || item.matchedAnime.images?.jpg?.image_url,
+                                    title: item.matchedAnime.title
+                                  })}
                                 />
                                 <div className="min-w-0">
                                   <div className="font-bold text-gray-900 dark:text-white line-clamp-1 leading-snug">
@@ -1242,6 +1435,36 @@ const ImportListModal = ({ onClose, onImportCompleted }) => {
         </div>
 
       </div>
+
+      {/* Modal flotante de vista previa de imagen grande */}
+      {previewImage && (
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 backdrop-blur-sm p-4 cursor-zoom-out animate-fade-in"
+          onClick={() => setPreviewImage(null)}
+        >
+          <div 
+            className="relative max-w-lg w-full max-h-[90vh] flex flex-col items-center justify-center animate-scale-up" 
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setPreviewImage(null)}
+              className="absolute -top-12 right-0 rounded-full bg-white/10 hover:bg-white/20 p-2 text-white transition-all hover:rotate-90 duration-300"
+            >
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <img
+              src={previewImage.url}
+              alt={previewImage.title}
+              className="max-h-[75vh] w-auto object-contain rounded-xl shadow-2xl border border-white/10"
+            />
+            <p className="text-white font-bold text-center mt-4 text-base px-4 truncate max-w-full drop-shadow-md">
+              {previewImage.title}
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

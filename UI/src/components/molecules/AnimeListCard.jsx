@@ -7,7 +7,7 @@ const AnimeListCard = ({ list, onDelete, onExportExcel, onExportTxt, index = 0 }
   return (
     <div className="group relative overflow-hidden rounded-2xl glass-panel p-5 sm:p-6 shadow-lg transition-all duration-500 ease-out hover:shadow-[0_20px_40px_-15px_rgba(16,185,129,0.3)] transform-style-3d hover:-translate-y-2 hover:rotate-x-2 hover:rotate-y-[-2deg] cursor-pointer transform-gpu border border-white/20 dark:border-gray-700/50"
          style={{
-           animationDelay: `${index * 100}ms`,
+           animationDelay: `${Math.min(index * 40, 300)}ms`,
          }}
     >
       <div className="mb-4 sm:mb-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between relative z-10">
@@ -131,4 +131,4 @@ const AnimeListCard = ({ list, onDelete, onExportExcel, onExportTxt, index = 0 }
   );
 };
 
-export default AnimeListCard; 
+export default React.memo(AnimeListCard); 

@@ -7,6 +7,73 @@ const AnimeListDetail = () => {
   const navigate = useNavigate();
   const [list, setList] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [draggedIdx, setDraggedIdx] = useState(null);
+  const [draggedOverIdx, setDraggedOverIdx] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortOption, setSortOption] = useState('original'); // original, a-z, z-a
+
+  const processedAnimes = React.useMemo(() => {
+    if (!list || !list.animes) return [];
+    let result = [...list.animes];
+
+    // 1. Filtrar por búsqueda
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      result = result.filter(anime => 
+        anime.title.toLowerCase().includes(query) ||
+        (anime.title_english && anime.title_english.toLowerCase().includes(query)) ||
+        (anime.title_japanese && anime.title_japanese.toLowerCase().includes(query))
+      );
+    }
+
+    // 2. Ordenar
+    if (sortOption === 'a-z') {
+      result.sort((a, b) => a.title.localeCompare(b.title));
+    } else if (sortOption === 'z-a') {
+      result.sort((a, b) => b.title.localeCompare(a.title));
+    }
+
+    return result;
+  }, [list, searchQuery, sortOption]);
+
+  const isReorderEnabled = sortOption === 'original' && searchQuery === '';
+
+  const handleDragStart = (e, index) => {
+    setDraggedIdx(index);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
+
+  const handleDragEnter = (index) => {
+    setDraggedOverIdx(index);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIdx(null);
+    setDraggedOverIdx(null);
+  };
+
+  const handleDrop = (e, targetIndex) => {
+    e.preventDefault();
+    if (draggedIdx === null || draggedIdx === targetIndex) return;
+
+    const reorderedAnimes = [...list.animes];
+    const [movedAnime] = reorderedAnimes.splice(draggedIdx, 1);
+    reorderedAnimes.splice(targetIndex, 0, movedAnime);
+
+    const updatedList = { ...list, animes: reorderedAnimes };
+    setList(updatedList);
+
+    const storedLists = JSON.parse(localStorage.getItem('animeLists') || '[]');
+    const updatedLists = storedLists.map(l => l.id === list.id ? updatedList : l);
+    localStorage.setItem('animeLists', JSON.stringify(updatedLists));
+
+    setDraggedIdx(null);
+    setDraggedOverIdx(null);
+  };
 
   useEffect(() => {
     const storedLists = JSON.parse(localStorage.getItem('animeLists') || '[]');
@@ -17,7 +84,7 @@ const AnimeListDetail = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 w-full overflow-x-hidden">
         <div className="container mx-auto px-4 py-8">
           <div className="flex min-h-[400px] items-center justify-center">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent"></div>
@@ -29,7 +96,7 @@ const AnimeListDetail = () => {
 
   if (!list) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 w-full overflow-x-hidden">
         <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
           <div className="flex min-h-[300px] sm:min-h-[400px] flex-col items-center justify-center text-center px-4">
             <div className="mb-6 sm:mb-8">
@@ -60,7 +127,7 @@ const AnimeListDetail = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 w-full overflow-x-hidden">
       <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
         <div className="mb-6 sm:mb-8 rounded-2xl glass-panel p-4 sm:p-5 shadow-lg relative z-10 animate-fade-in">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -118,18 +185,108 @@ const AnimeListDetail = () => {
             </button>
           </div>
         ) : (
-          <div className="grid gap-3 sm:gap-4 md:gap-6 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-            {list.animes.map((anime, index) => (
-              <AnimeCard
-                key={anime.mal_id}
-                anime={anime}
-                index={index}
-                onViewDetails={(anime) => {
-                  // Implementar vista detallada si es necesario
-                }}
-              />
-            ))}
-          </div>
+          <>
+            {/* Controles de Búsqueda y Ordenamiento */}
+            <div className="mb-6 flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm p-4 rounded-2xl border border-gray-150 dark:border-gray-700 shadow-sm animate-fade-in">
+              {/* Buscador */}
+              <div className="relative w-full md:max-w-md">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </span>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full rounded-xl border border-gray-300 dark:border-gray-650 bg-white dark:bg-gray-700 pl-10 pr-10 py-2.5 text-sm text-gray-900 dark:text-white focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                  placeholder="Buscar anime en esta lista..."
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 dark:hover:text-white"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+
+              {/* Ordenamiento e Indicador */}
+              <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <label className="text-xs font-bold text-gray-500 dark:text-gray-450 uppercase tracking-wider whitespace-nowrap">Ordenar por:</label>
+                  <select
+                    value={sortOption}
+                    onChange={(e) => setSortOption(e.target.value)}
+                    className="w-full sm:w-auto rounded-xl border border-gray-300 dark:border-gray-650 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white focus:border-emerald-500 focus:outline-none"
+                  >
+                    <option value="original">Orden Original (Arrastrar)</option>
+                    <option value="a-z">Alfabético A-Z</option>
+                    <option value="z-a">Alfabético Z-A</option>
+                  </select>
+                </div>
+                
+                {/* Mensaje informativo sobre Drag & Drop */}
+                <div className="text-xs text-gray-450 font-medium sm:text-right shrink-0">
+                  {isReorderEnabled ? (
+                    <span className="text-emerald-500 font-semibold flex items-center justify-center gap-1.5">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                      Arrastre activado
+                    </span>
+                  ) : (
+                    <span className="text-amber-500 font-semibold flex items-center justify-center gap-1.5">
+                      <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                      Arrastre desactivado
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Cuadrícula o Mensaje Vacío */}
+            {processedAnimes.length === 0 ? (
+              <div className="flex min-h-[220px] flex-col items-center justify-center text-center p-8 bg-white dark:bg-gray-800 rounded-2xl border border-gray-150 dark:border-gray-700 shadow-sm animate-fade-in">
+                <span className="text-4xl mb-3">🔍</span>
+                <p className="text-lg font-bold text-gray-700 dark:text-gray-300">No se encontraron resultados para tu búsqueda</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Intenta buscar con términos diferentes o borra el filtro.</p>
+              </div>
+            ) : (
+              <div className="grid gap-3 sm:gap-4 md:gap-6 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 animate-fade-in">
+                {processedAnimes.map((anime, index) => {
+                  const originalIndex = list.animes.findIndex(a => a.mal_id === anime.mal_id);
+                  return (
+                    <div
+                      key={anime.mal_id}
+                      draggable={isReorderEnabled}
+                      onDragStart={(e) => handleDragStart(e, originalIndex)}
+                      onDragOver={handleDragOver}
+                      onDragEnter={() => handleDragEnter(originalIndex)}
+                      onDragEnd={handleDragEnd}
+                      onDrop={(e) => handleDrop(e, originalIndex)}
+                      className={`relative transition-all duration-300 ${
+                        isReorderEnabled ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'
+                      } ${
+                        draggedIdx === originalIndex ? 'opacity-30 scale-95' : ''
+                      } ${
+                        draggedOverIdx === originalIndex ? 'ring-4 ring-emerald-500 rounded-2xl scale-[1.02] z-10 shadow-lg' : ''
+                      }`}
+                    >
+                      <AnimeCard
+                        anime={anime}
+                        index={index}
+                        onViewDetails={(anime) => {
+                          // Implementar vista detallada si es necesario
+                        }}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
