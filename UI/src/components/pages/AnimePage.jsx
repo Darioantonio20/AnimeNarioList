@@ -203,8 +203,8 @@ const AnimePage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-500 w-full overflow-x-hidden">
+      <AnimeHeader />
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-4 sm:py-6 lg:py-8">
-        <AnimeHeader />
         
         {/* Hero Section */}
         <div className="relative z-10 flex flex-col items-center justify-center mt-4 sm:mt-8 mb-8 sm:mb-12 animate-fade-in">

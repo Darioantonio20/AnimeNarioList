@@ -83,3 +83,18 @@
 @keyframes shimmer {
   100% { transform: translateX(100%); }
 }
+
+/* Premium Spinner para carga de imágenes */
+@keyframes spin-smooth {
+  to { transform: rotate(360deg); }
+}
+
+.anime-spinner {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 3px solid rgba(16, 185, 129, 0.15);
+  border-top-color: #10b981;
+  animation: spin-smooth 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+

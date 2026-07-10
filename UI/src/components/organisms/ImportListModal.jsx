@@ -825,7 +825,7 @@ const ImportListModal = ({ onClose, onImportCompleted }) => {
         }
       `}</style>
 
-      <div className="w-full max-w-4xl rounded-2xl bg-white dark:bg-gray-800 shadow-2xl flex flex-col max-h-[90vh] reveal overflow-hidden border border-gray-150 dark:border-gray-700/80">
+      <div className="w-full max-w-4xl rounded-2xl bg-white/70 dark:bg-gray-800/70 backdrop-blur-2xl border border-white/40 dark:border-gray-600/40 shadow-2xl shadow-emerald-500/10 flex flex-col max-h-[90vh] reveal overflow-hidden">
         
         {/* Header */}
         <div className="p-5 sm:p-6 border-b border-gray-150 dark:border-gray-700 flex items-center justify-between bg-gradient-to-r from-emerald-50/40 to-emerald-100/10 dark:from-emerald-950/20 dark:to-gray-800/10">
@@ -1309,7 +1309,7 @@ const ImportListModal = ({ onClose, onImportCompleted }) => {
           {/* BUSCADOR MANUAL FLOTANTE / IN-ROW */}
           {manualSearchRowIdx !== null && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-hidden">
-              <div className="w-full max-w-lg rounded-2xl bg-white dark:bg-gray-800 p-6 shadow-2xl border border-gray-100 dark:border-gray-700 flex flex-col max-h-[80vh] animate-scale-up transform-gpu">
+              <div className="w-full max-w-lg rounded-2xl bg-white/70 dark:bg-gray-800/70 backdrop-blur-2xl border border-white/40 dark:border-gray-600/40 p-6 shadow-2xl shadow-emerald-500/10 flex flex-col max-h-[80vh] animate-scale-up transform-gpu">
                 <div className="flex justify-between items-center mb-4 border-b border-gray-100 dark:border-gray-700 pb-3">
                   <h4 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white line-clamp-1">
                     Corregir: <span className="text-emerald-500 font-semibold">"{itemsToValidate[manualSearchRowIdx]?.originalTitle}"</span>

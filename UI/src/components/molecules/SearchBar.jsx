@@ -17,7 +17,7 @@ const SearchBar = ({ onSearch, value = '' }) => {
             onChange={(e) => onSearch(e.target.value)}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
-            className="w-full rounded-full border border-gray-200/50 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md px-5 sm:px-8 py-3.5 sm:py-4 pl-12 sm:pl-14 text-sm sm:text-base text-gray-900 shadow-lg transition-all duration-300 focus:border-emerald-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-emerald-500/20 dark:border-gray-700/50 dark:text-white dark:placeholder-gray-400 dark:focus:bg-gray-800 min-h-[48px] sm:min-h-[56px]"
+            className="w-full rounded-full border border-white/30 dark:border-gray-700/40 bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl px-5 sm:px-8 py-3.5 sm:py-4 pl-12 sm:pl-14 text-sm sm:text-base text-gray-900 shadow-lg shadow-emerald-500/5 transition-all duration-300 focus:border-emerald-500 focus:bg-white/80 focus:outline-none focus:ring-4 focus:ring-emerald-500/20 dark:text-white dark:placeholder-gray-400 dark:focus:bg-gray-800/80 min-h-[48px] sm:min-h-[56px]"
             style={{ fontSize: '16px' }} // Prevents zoom on iOS
           />
           <svg

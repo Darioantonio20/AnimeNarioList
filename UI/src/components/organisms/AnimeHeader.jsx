@@ -13,8 +13,8 @@ const AnimeHeader = () => {
   }, []);
 
   return (
-    <header className={`sticky top-0 z-40 w-full transition-all duration-300 ${scrolled ? 'py-3' : 'py-5'}`}>
-      <div className={`mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 transition-all duration-300 ${scrolled ? 'glass-panel rounded-2xl shadow-lg shadow-emerald-500/5' : 'bg-transparent'}`}>
+    <header className={`sticky top-0 z-40 w-full transition-all duration-300 ${scrolled ? 'py-2' : 'py-4'}`}>
+      <div className={`mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 transition-all duration-300 rounded-2xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl border border-white/30 dark:border-gray-700/40 ${scrolled ? 'shadow-lg shadow-emerald-500/10' : 'shadow-md shadow-emerald-500/5'}`}>
         <div className="flex items-center justify-between h-14 sm:h-16">
           {/* Logo Area */}
           <div className="flex items-center flex-shrink-0">

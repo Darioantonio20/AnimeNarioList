@@ -1,19 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import SaveToListModal from '../organisms/SaveToListModal';
+import { useScrollReveal } from '../../hooks/useScrollReveal';
 
 const AnimeCard = ({ anime, onViewDetails, index = 0 }) => {
   const [showSaveModal, setShowSaveModal] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
-
-  useEffect(() => {
-    // Escalonar la entrada de las tarjetas limitando el retraso máximo para mejor rendimiento
-    const delay = Math.min(index * 15, 300);
-    const timer = setTimeout(() => {
-      setIsLoaded(true);
-    }, delay);
-    return () => clearTimeout(timer);
-  }, [index]);
+  const { ref, isVisible, hasRendered, delay, duration } = useScrollReveal();
 
   const handleSaveClick = (e) => {
     e.stopPropagation();
@@ -24,29 +17,52 @@ const AnimeCard = ({ anime, onViewDetails, index = 0 }) => {
     onViewDetails(anime);
   };
 
+  // Usar imagen mediana para carga rápida en lugar de large
+  const imageSrc = anime.images?.jpg?.image_url || anime.images?.jpg?.large_image_url || '';
+
   return (
     <>
       <div 
-        className={`perspective-1000 w-full h-full cursor-pointer transition-all duration-700 ease-out transform-gpu ${
-          isLoaded ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-12 scale-95'
-        }`}
+        ref={ref}
+        className="perspective-1000 w-full h-full cursor-pointer transform-gpu will-change-transform"
+        style={{
+          opacity: isVisible ? 1 : 0,
+          transform: isVisible ? 'translateY(0) scale(1)' : 'translateY(28px) scale(0.97)',
+          filter: isVisible ? 'blur(0px)' : 'blur(6px)',
+          transition: `opacity ${duration}ms cubic-bezier(0.16, 1, 0.3, 1) ${isVisible ? delay : 0}ms, transform ${duration}ms cubic-bezier(0.16, 1, 0.3, 1) ${isVisible ? delay : 0}ms, filter ${duration}ms cubic-bezier(0.16, 1, 0.3, 1) ${isVisible ? delay : 0}ms`,
+        }}
         onClick={handleCardClick}
       >
-        <div className="group relative h-full w-full overflow-hidden rounded-2xl bg-white dark:bg-gray-800 shadow-lg transition-all duration-500 ease-out hover:shadow-[0_20px_40px_-15px_rgba(16,185,129,0.3)] transform-style-3d hover:-translate-y-2 hover:rotate-x-2 hover:rotate-y-[-2deg]">
+        {hasRendered ? (
+          <div className="group relative h-full w-full overflow-hidden rounded-2xl bg-white dark:bg-gray-800 shadow-lg transition-shadow duration-500 ease-out hover:shadow-[0_20px_40px_-15px_rgba(16,185,129,0.3)] transform-style-3d">
           
           {/* Shimmer Effect en Hover */}
           <div className="absolute inset-0 z-30 bg-gradient-to-tr from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] pointer-events-none" />
           
-          {/* Imagen principal */}
+          {/* Imagen principal con spinner */}
           <div className="aspect-[2/3] w-full relative overflow-hidden bg-gray-200 dark:bg-gray-700">
+
+            {/* Spinner de carga premium */}
+            {!imageLoaded && !imageError && (
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-800">
+                <div className="anime-spinner mb-3" />
+                <span className="text-[10px] sm:text-xs font-semibold text-gray-400 dark:text-gray-500 tracking-wide uppercase animate-pulse">
+                  Cargando...
+                </span>
+              </div>
+            )}
+
             {!imageError ? (
               <img 
-                src={anime.images?.jpg?.large_image_url || anime.images?.jpg?.image_url || 'https://via.placeholder.com/300x450'} 
+                src={imageSrc} 
                 alt={anime.title} 
-                className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110 group-hover:brightness-75"
-                onLoad={() => setImageError(false)}
+                className={`h-full w-full object-cover transition-all duration-700 ease-out group-hover:scale-110 group-hover:brightness-75 ${
+                  imageLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
+                }`}
+                onLoad={() => setImageLoaded(true)}
                 onError={() => setImageError(true)}
                 loading="lazy"
+                decoding="async"
               />
             ) : (
               <div className="h-full w-full bg-gradient-to-br from-emerald-500 to-teal-700 flex flex-col items-center justify-center p-4 text-center">
@@ -143,6 +159,9 @@ const AnimeCard = ({ anime, onViewDetails, index = 0 }) => {
             </div>
           </div>
         </div>
+        ) : (
+          <div className="aspect-[2/3] w-full rounded-2xl bg-gray-200 dark:bg-gray-800/50 animate-pulse border border-white/10" />
+        )}
       </div>
       
       {showSaveModal && (
@@ -155,4 +174,4 @@ const AnimeCard = ({ anime, onViewDetails, index = 0 }) => {
   );
 };
 
-export default React.memo(AnimeCard); 
+export default React.memo(AnimeCard);

@@ -28,7 +28,7 @@ const AnimeDetail = ({ anime, onClose }) => {
       }`}
       onClick={handleBackdropClick}
     >
-      <div className={`relative mx-4 max-h-[95vh] w-full max-w-6xl overflow-hidden rounded-3xl bg-white/90 backdrop-blur-xl border border-white/20 shadow-2xl transform transition-all duration-500 ease-out dark:bg-gray-900/90 dark:border-gray-700/30 ${
+      <div className={`relative mx-4 max-h-[95vh] w-full max-w-6xl overflow-hidden rounded-3xl bg-white/70 dark:bg-gray-900/70 backdrop-blur-2xl border border-white/40 dark:border-gray-600/40 shadow-2xl shadow-emerald-500/10 transform transition-all duration-500 ease-out ${
         isVisible ? 'scale-100 opacity-100 translate-y-0' : 'scale-95 opacity-0 translate-y-8'
       }`}>
         {/* Header con gradiente y botón de cerrar mejorado */}

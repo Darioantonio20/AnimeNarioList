@@ -65,7 +65,7 @@ const MyAnimeLists = () => {
       <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
         
         {/* Header Responsive */}
-        <div className="mb-6 sm:mb-8 rounded-2xl glass-panel p-4 sm:p-5 shadow-lg relative z-10 animate-fade-in">
+        <div className="sticky top-0 z-40 mb-6 sm:mb-8 rounded-2xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl border border-white/30 dark:border-gray-700/40 p-4 sm:p-5 shadow-lg shadow-emerald-500/5 animate-fade-in">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             
             {/* Título y Botón Volver */}

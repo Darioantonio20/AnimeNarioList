@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import AnimeCard from '../atoms/AnimeCard';
+import AnimeDetail from '../organisms/AnimeDetail';
 
 const AnimeListDetail = () => {
   const { listId } = useParams();
@@ -11,6 +12,7 @@ const AnimeListDetail = () => {
   const [draggedOverIdx, setDraggedOverIdx] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState('original'); // original, a-z, z-a
+  const [selectedAnime, setSelectedAnime] = useState(null);
 
   const processedAnimes = React.useMemo(() => {
     if (!list || !list.animes) return [];
@@ -129,7 +131,7 @@ const AnimeListDetail = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 w-full overflow-x-hidden">
       <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
-        <div className="mb-6 sm:mb-8 rounded-2xl glass-panel p-4 sm:p-5 shadow-lg relative z-10 animate-fade-in">
+        <div className="sticky top-0 z-40 mb-6 sm:mb-8 rounded-2xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl border border-white/30 dark:border-gray-700/40 p-4 sm:p-5 shadow-lg shadow-emerald-500/5 animate-fade-in">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-4">
               <button
@@ -187,7 +189,7 @@ const AnimeListDetail = () => {
         ) : (
           <>
             {/* Controles de Búsqueda y Ordenamiento */}
-            <div className="mb-6 flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm p-4 rounded-2xl border border-gray-150 dark:border-gray-700 shadow-sm animate-fade-in">
+            <div className="sticky top-[88px] z-30 mb-6 flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl p-4 rounded-2xl border border-white/30 dark:border-gray-700/40 shadow-lg shadow-emerald-500/5 animate-fade-in">
               {/* Buscador */}
               <div className="relative w-full md:max-w-md">
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -277,9 +279,7 @@ const AnimeListDetail = () => {
                       <AnimeCard
                         anime={anime}
                         index={index}
-                        onViewDetails={(anime) => {
-                          // Implementar vista detallada si es necesario
-                        }}
+                        onViewDetails={(anime) => setSelectedAnime(anime)}
                       />
                     </div>
                   );
@@ -287,6 +287,13 @@ const AnimeListDetail = () => {
               </div>
             )}
           </>
+        )}
+
+        {selectedAnime && (
+          <AnimeDetail
+            anime={selectedAnime}
+            onClose={() => setSelectedAnime(null)}
+          />
         )}
       </div>
     </div>

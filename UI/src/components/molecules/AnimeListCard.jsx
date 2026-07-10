@@ -1,15 +1,24 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useScrollReveal } from '../../hooks/useScrollReveal';
 
 const AnimeListCard = ({ list, onDelete, onExportExcel, onExportTxt, index = 0 }) => {
   const navigate = useNavigate();
+  const { ref, isVisible, hasRendered, delay, duration } = useScrollReveal();
 
   return (
-    <div className="group relative overflow-hidden rounded-2xl glass-panel p-5 sm:p-6 shadow-lg transition-all duration-500 ease-out hover:shadow-[0_20px_40px_-15px_rgba(16,185,129,0.3)] transform-style-3d hover:-translate-y-2 hover:rotate-x-2 hover:rotate-y-[-2deg] cursor-pointer transform-gpu border border-white/20 dark:border-gray-700/50"
-         style={{
-           animationDelay: `${Math.min(index * 40, 300)}ms`,
-         }}
+    <div 
+      ref={ref}
+      className="group relative overflow-hidden rounded-2xl glass-panel p-5 sm:p-6 shadow-lg transform-style-3d hover:-translate-y-2 cursor-pointer transform-gpu border border-white/20 dark:border-gray-700/50 will-change-transform hover:shadow-[0_20px_40px_-15px_rgba(16,185,129,0.3)] transition-shadow duration-500"
+      style={{
+        opacity: isVisible ? 1 : 0,
+        transform: isVisible ? 'translateY(0) scale(1)' : 'translateY(28px) scale(0.97)',
+        filter: isVisible ? 'blur(0px)' : 'blur(6px)',
+        transition: `opacity ${duration}ms cubic-bezier(0.16, 1, 0.3, 1) ${isVisible ? delay : 0}ms, transform ${duration}ms cubic-bezier(0.16, 1, 0.3, 1) ${isVisible ? delay : 0}ms, filter ${duration}ms cubic-bezier(0.16, 1, 0.3, 1) ${isVisible ? delay : 0}ms, box-shadow 500ms ease`,
+      }}
     >
+      {hasRendered ? (
+        <>
       <div className="mb-4 sm:mb-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between relative z-10">
         <h3 className="text-xl sm:text-2xl font-black text-gray-800 dark:text-white line-clamp-2 tracking-tight">
           {list.name}
@@ -36,6 +45,8 @@ const AnimeListCard = ({ list, onDelete, onExportExcel, onExportTxt, index = 0 }
               src={anime.images?.jpg?.small_image_url}
               alt={anime.title}
               className="h-5 w-5 rounded-full object-cover shadow-sm"
+              loading="lazy"
+              decoding="async"
             />
             <span className="truncate max-w-[100px]">{anime.title}</span>
           </div>
@@ -127,8 +138,12 @@ const AnimeListCard = ({ list, onDelete, onExportExcel, onExportTxt, index = 0 }
           </button>
         </div>
       </div>
+      </>
+    ) : (
+      <div className="h-[200px] w-full bg-gray-200/50 dark:bg-gray-800/30 rounded-2xl animate-pulse" />
+    )}
     </div>
   );
 };
 
-export default React.memo(AnimeListCard); 
+export default React.memo(AnimeListCard);
